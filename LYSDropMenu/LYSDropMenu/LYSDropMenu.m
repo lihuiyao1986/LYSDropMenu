@@ -107,6 +107,8 @@
 #pragma mark - 设置数据
 -(void)setItems:(NSArray *)items{
    _selectedIndex = _selectedIndex <= 0 ? 0 : (_selectedIndex <= self.items.count -1 ?: self.items.count - 1);
+    self.listView.frame = CGRectMake(VIEW_X(self) , VIEW_Y_Bottom(self), VIEW_WIDTH(self),  0);
+    self.tableView.frame = CGRectMake(0, 0,VIEW_WIDTH(_listView), VIEW_HEIGHT(_listView));
     _items = [self selectedItems:items atIndex:_selectedIndex];
     if (self.delegate && [self.delegate respondsToSelector:@selector(updateMainItem:item:)]) {
         [self.delegate updateMainItem:_mainView item:self.items[self.selectedIndex]];
@@ -181,7 +183,7 @@
 #pragma mark - 获取列表视图
 -(UITableView*)tableView{
     if (!_tableView) {
-        _tableView = [[UITableView alloc] initWithFrame:CGRectMake(0, 0,VIEW_WIDTH(_listView), VIEW_HEIGHT(_listView))];
+        _tableView = [[UITableView alloc] init];
         _tableView.delegate        = self;
         _tableView.dataSource      = self;
         _tableView.separatorStyle  = UITableViewCellSeparatorStyleNone;
@@ -195,7 +197,6 @@
 -(UIView*)listView{
     if (!_listView) {
         _listView = [[UIView alloc] init];
-        _listView.frame = CGRectMake(VIEW_X(self) , VIEW_Y_Bottom(self), VIEW_WIDTH(self),  0);
         _listView.clipsToBounds       = YES;
         _listView.layer.masksToBounds = NO;
         _listView.layer.borderColor   = [UIColor lightTextColor].CGColor;
