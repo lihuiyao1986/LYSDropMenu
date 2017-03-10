@@ -22,7 +22,7 @@
     if (self = [super initWithStyle:style reuseIdentifier:reuseIdentifier]) {
         _label = [[UILabel alloc]init];
         _label.textColor = [UIColor blackColor];
-        _label.textAlignment = NSTextAlignmentCenter;
+//        _label.textAlignment = NSTextAlignmentCenter;
         _label.font = [UIFont systemFontOfSize:14];
         _label.numberOfLines = 1;
         self.contentView.backgroundColor = [UIColor clearColor];
@@ -33,7 +33,7 @@
 
 -(void)layoutSubviews{
     [super layoutSubviews];
-    _label.frame = self.bounds;
+    _label.frame = CGRectMake(10, 0, self.bounds.size.width - 20, self.bounds.size.height);
 }
 
 -(void)setItem:(NSMutableDictionary *)item{

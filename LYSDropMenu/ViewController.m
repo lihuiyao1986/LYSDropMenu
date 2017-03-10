@@ -22,7 +22,8 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view, typically from a nib.
     [self.view addSubview:self.dropMenu];
-    self.dropMenu.items = @[@{@"name":@"李焱生"},@{@"name":@"李焱生"},@{@"name":@"李焱生"},@{@"name":@"李焱生"},@{@"name":@"李焱生"},@{@"name":@"李焱生"},@{@"name":@"李焱生"},@{@"name":@"李焱生"}];
+    self.dropMenu.selectedIndex = 3;
+    self.dropMenu.items = @[@{@"name":@"李焱生1"},@{@"name":@"李焱生2"},@{@"name":@"李焱生3"},@{@"name":@"李焱生4"},@{@"name":@"李焱生5"},@{@"name":@"李焱生6"},@{@"name":@"李焱生7"},@{@"name":@"李焱生8"}];
 
 }
 
@@ -32,7 +33,9 @@
         _dropMenu = [[LYSDropMenu alloc]initWithFrame:CGRectMake(20, 120, self.view.bounds.size.width - 40, 44.f)];
         _dropMenu.delegate = self;
         _dropMenu.layer.borderWidth = 1;
+        _dropMenu.layer.borderColor = [UIColor lightGrayColor].CGColor;
         _dropMenu.maxShowCount = 4;
+        _dropMenu.mainItemClazz = [UILabel class];
         _dropMenu.itemClazz = [MyCell class];
 
     }
@@ -45,7 +48,13 @@
 }
 
 -(void)setMainItemViewStyle:(UIView*)view{
-    view.backgroundColor = [UIColor redColor];
+    if ([view isKindOfClass:[UILabel class]]) {
+        UILabel *_mainView = ((UILabel *)view);
+        _mainView.textColor = [UIColor redColor];
+        _mainView.font = [UIFont systemFontOfSize:14];
+        _mainView.frame = CGRectMake( 10 , 0, _mainView.superview.frame.size.width - 20, _mainView.superview.frame.size.height);
+    }
+//    view.backgroundColor = [UIColor redColor];
 }
 
 -(void)handleItemView:(UITableViewCell*)itemView item:(NSMutableDictionary *)item{
@@ -73,6 +82,12 @@
 
 -(void)dropdownMenuDidHide:(LYSDropMenu*)menu{
     NSLog(@"dropdownMenuDidHide");
+}
+
+-(void)updateMainItem:(UIView *)mainItemView item:(NSMutableDictionary *)item{
+    if ([mainItemView isKindOfClass:[UILabel class]]) {
+        ((UILabel *)mainItemView).text = [item objectForKey:@"name"];
+    }
 }
 
 

@@ -14,19 +14,29 @@
 
 @optional
 
+#pragma mark - 设置主itemview的样式
 -(void)setMainItemViewStyle:(UIView*)view;
 
+#pragma mark - 处理itemView
 -(void)handleItemView:(UITableViewCell*)itemView item:(NSMutableDictionary*)item;
 
+#pragma mark - 菜单被选中
 -(void)itemDidSelected:(LYSDropMenu*)menu item:(NSMutableDictionary*)item;
 
+#pragma mark - 下拉菜单即将出现
 -(void)dropdownMenuWillShow:(LYSDropMenu*)menu;
 
+#pragma mark - 下拉菜单已出现
 -(void)dropdownMenuDidShow:(LYSDropMenu*)menu;
 
+#pragma mark - 下拉菜单即将隐藏
 -(void)dropdownMenuWillHide:(LYSDropMenu*)menu;
 
+#pragma mark - 下拉菜单已隐藏
 -(void)dropdownMenuDidHide:(LYSDropMenu*)menu;
+
+#pragma mark - 更新mainview
+-(void)updateMainItem:(UIView*)mainItemView item:(NSMutableDictionary*)item;
 
 @end
 
@@ -54,9 +64,9 @@
 @property(nonatomic,weak)id<LYSDropMenuDelegate> delegate;
 
 #pragma mark - 显示下拉列表
--(void)showDropDownMenu;
+-(void)showDropDownMenu:(void(^)())completeBlock;
 
 #pragma mark - 隐藏下拉菜单
--(void)hideDropDownMenu;
+-(void)hideDropDownMenu:(void(^)())completeBlock;
 
 @end

@@ -78,7 +78,7 @@
 
 #pragma mark - 按钮被点击
 -(void)btnClicked:(UIButton*)sender{
-    _isExpanded ? [self hideDropDownMenu] :  [self showDropDownMenu];
+    _isExpanded ? [self hideDropDownMenu:nil] :  [self showDropDownMenu:nil];
 }
 
 -(void)setMainItemClazz:(Class)mainItemClazz{
@@ -92,6 +92,7 @@
     [_mainView removeFromSuperview];
     _mainView = nil;
     _mainView = [[self.mainItemClazz alloc]initWithFrame:self.bounds];
+    [self addSubview:_mainView];
     if (self.delegate && [self.delegate respondsToSelector:@selector(setMainItemViewStyle:)]) {
         [self.delegate setMainItemViewStyle:_mainView];
     }
@@ -107,6 +108,9 @@
 -(void)setItems:(NSArray *)items{
    _selectedIndex = _selectedIndex <= 0 ? 0 : (_selectedIndex <= self.items.count -1 ?: self.items.count - 1);
     _items = [self selectedItems:items atIndex:_selectedIndex];
+    if (self.delegate && [self.delegate respondsToSelector:@selector(updateMainItem:item:)]) {
+        [self.delegate updateMainItem:_mainView item:self.items[self.selectedIndex]];
+    }
     if (!self.listView.superview) {
         [self.superview addSubview:self.listView];
         if (!self.tableView.superview) {
@@ -118,7 +122,7 @@
 }
 
 #pragma mark - 显示下拉列表
--(void)showDropDownMenu{
+-(void)showDropDownMenu:(void(^)())completeBlock{
     if (_isExpanded) {
         return;
     }
@@ -132,6 +136,9 @@
         WeakSelf.tableView.frame = CGRectMake(0, 0, VIEW_WIDTH(WeakSelf.listView), [WeakSelf dropMenuH]);
     } completion:^(BOOL finished) {
         _isExpanded = YES;
+        if (completeBlock) {
+            completeBlock();
+        }
         if ([WeakSelf.delegate respondsToSelector:@selector(dropdownMenuDidShow:)]) {
             [WeakSelf.delegate dropdownMenuDidShow:WeakSelf];
         }
@@ -139,7 +146,7 @@
 }
 
 #pragma mark - 隐藏下拉菜单
--(void)hideDropDownMenu{
+-(void)hideDropDownMenu:(void(^)())completeBlock{
     if (!_isExpanded) {
         return;
     }
@@ -151,6 +158,9 @@
         WeakSelf.listView.frame  = CGRectMake(VIEW_X(WeakSelf.listView), VIEW_Y(WeakSelf.listView), VIEW_WIDTH(WeakSelf.listView), 0);
         WeakSelf.tableView.frame = CGRectMake(0, 0, VIEW_WIDTH(WeakSelf.listView), VIEW_HEIGHT(WeakSelf.listView));
     }completion:^(BOOL finished) {
+        if (completeBlock) {
+            completeBlock();
+        }
         _isExpanded = NO;
         if ([WeakSelf.delegate respondsToSelector:@selector(dropdownMenuDidHide:)]) {
             [WeakSelf.delegate dropdownMenuDidHide:WeakSelf]; // 已经隐藏回调代理
@@ -218,10 +228,12 @@
     NSUInteger preSelectedIndex = self.selectedIndex;
     self.selectedIndex = indexPath.row;
     if (preSelectedIndex == self.selectedIndex && [[self.items[self.selectedIndex] objectForKey:@"selected"] isEqualToString:@"1"]) {
+        [self hideDropDownMenu:nil];
         return;
     }
+    __weak typeof (self)WeakSelf = self;
     [_items enumerateObjectsUsingBlock:^(NSMutableDictionary * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-        if (self.selectedIndex == idx) {
+        if (WeakSelf.selectedIndex == idx) {
             [obj setObject:@"1" forKey:@"selected"];
         }else{
             [obj setObject:@"0" forKey:@"selected"];
@@ -229,10 +241,17 @@
 
     }];
     [tableView reloadRowsAtIndexPaths:@[indexPath,[NSIndexPath indexPathForItem:preSelectedIndex inSection:0]] withRowAnimation:UITableViewRowAnimationNone];
-    [self hideDropDownMenu];
-    if (self.delegate && [self.delegate respondsToSelector:@selector(itemDidSelected:item:)]) {
-        [self.delegate itemDidSelected:self item:self.items[indexPath.row]];
-    }
+    [self hideDropDownMenu:^{
+        if (WeakSelf.delegate) {
+            if ([WeakSelf.delegate respondsToSelector:@selector(itemDidSelected:item:)]) {
+                [WeakSelf.delegate itemDidSelected:WeakSelf item:WeakSelf.items[indexPath.row]];
+            }
+            if ([WeakSelf.delegate respondsToSelector:@selector(updateMainItem:item:)]) {
+                [WeakSelf.delegate updateMainItem:_mainView item:WeakSelf.items[indexPath.row]];
+            }
+        }
+    }];
+  
 }
 
 #pragma mark 选中某个下标
